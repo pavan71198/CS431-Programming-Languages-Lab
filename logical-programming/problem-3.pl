@@ -4,6 +4,10 @@
 
 
 /* move is for movements where we can go both forward and backwards, we can solve cyclic as in part 3*/
+move(g,g1,0).
+move(g,g2,0).
+move(g,g3,0).
+move(g,g4,0).
 move(g1,g5,4).
 move(g2,g5,6).
 move(g3,g5,8).
@@ -133,21 +137,25 @@ movement(g17,g18,8).
     To find number of possible paths send find_ways(g1,g17),find_ways(g2,g17) and other two */
 
 /* way determines which way we'll be going and find the path recursively*/
-way(A, B, [A, B]) :-
-    movement(A, B, _).
+way(A, B, Visited, [B|Visited]) :-
+    move(A, B, _).
 
-way(A, B, PathAB) :-
-    movement(A, C, _),
-    way(C, B, PathCB),
-    PathAB = [A | PathCB].
+way(A, B, Visited, Path) :-
+    move(A, C, _),
+    C \== B,
+    \+member(C,Visited),
+    way(C, B, [C|Visited], Path).
 
-find_ways(A, B) :-
-    way(A, B, Path),
+find_ways(A, B, Path) :-
+    way(A, B, [A], ReversePath),
+    reverse(ReversePath, Path),
     printPath(Path),
-    writef('\n'),
-    fail.
+    writef('\n').
 
-find(A):-find_ways(A,g17).
+find(A):-
+    findall(Path,(member(A,[g1,g2,g3,g4]),find_ways(A,g17,Path)),PathSet),
+    length(PathSet,Len),
+    write(Len).
 
 
 /*******************************************************************************/
